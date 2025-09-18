@@ -143,7 +143,7 @@ app.all('/player/growid/login/validate', (req, res) => {
             maxPlayers: 1000,
             currentPlayers: 0,
             serverIP: "127.0.0.1",
-            serverPort: 17091
+            serverPort: 17777
         }
     };
 
@@ -253,7 +253,7 @@ app.all('/player/growid/register/validate', (req, res) => {
             maxPlayers: 1000,
             currentPlayers: 0,
             serverIP: "127.0.0.1",
-            serverPort: 17091
+            serverPort: 17777
         }
     };
 
