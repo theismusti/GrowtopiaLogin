@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const rateLimiter = require('express-rate-limit');
 const compression = require('compression');
 
-// Middleware - sıkıştırma
 app.use(compression({
     level: 5,
     threshold: 0,
@@ -15,12 +14,8 @@ app.use(compression({
         return compression.filter(req, res);
     }
 }));
-
-// EJS ayarları
 app.set('view engine', 'ejs');
 app.set('trust proxy', 1);
-
-// CORS + log
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header(
@@ -30,43 +25,58 @@ app.use(function (req, res, next) {
     console.log(`[${new Date().toLocaleString()}] ${req.method} ${req.url} - ${res.statusCode}`);
     next();
 });
-
-// Body parsers
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 
 // Growtopia dashboard endpoint (client login için)
 app.all('/player/login/dashboard', function (req, res) {
+    const tData = {};
+    try {
+        const uData = JSON.stringify(req.body).split('"')[1].split('\\n'); const uName = uData[0].split('|'); const uPass = uData[1].split('|');
+        for (let i = 0; i < uData.length - 1; i++) { const d = uData[i].split('|'); tData[d[0]] = d[1]; }
+        if (uName[1] && uPass[1]) { res.redirect('/player/growid/login/validate'); }
+    } catch (why) { console.log(`Warning: ${why}`); }
+
+    res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
+});
+
+// Growtopia client dashboard response endpoint
+app.all('/player/login/dashboard/response', function (req, res) {
+    // Generate dynamic values for each client
+    const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substring(2, 15);
+    const randomMac = Array.from({length: 6}, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(':');
+    const randomUUID = Math.random().toString(36).substring(2, 20);
+    
     const resp = [
         `protocol|217`,
         `game_version|5.27`,
-        `meta|${Date.now()}`,
+        `meta|${timestamp}`,
         `server|31.58.91.112`,
         `port|17777`,
         `type|1`,
-        `rid|${Math.random().toString(36).substring(7)}`,
+        `rid|${randomId}`,
         `gid|`,
         `hash|-716928004`,
         `fhash|-716928004`,
         `country|tr`,
-        `wk|${Math.random().toString(36).substring(2, 15)}`,
+        `wk|${randomId}`,
         `ltoken|${Buffer.from("_register_").toString("base64")}`,
         `platformID|0,1,1`,
-        `mac|${Math.random().toString(36).substring(2, 17)}`,
+        `mac|${randomMac}`,
         `player_age|25`,
-        `UUIDToken|${Math.random().toString(36).substring(2, 20)}`,
+        `UUIDToken|${randomUUID}`,
+        `clientIP|${clientIP}`,
+        `timestamp|${timestamp}`,
         ""
-    ].join("\n");
+    ].join('\n');
+
+    console.log(`[Dashboard] Client ${clientIP} requested dashboard response`);
     res.send(resp);
 });
 
-// Test dashboard (tarayıcı için)
-app.get('/dashboard_test', (req, res) => {
-    res.render(__dirname + '/public/html/dashboard.ejs', { data: { test: "OK" } });
-});
-
-// GrowID validate
 app.all('/player/growid/login/validate', (req, res) => {
     const _token = req.body._token;
     const growId = req.body.growId;
@@ -81,7 +91,6 @@ app.all('/player/growid/login/validate', (req, res) => {
     );
 });
 
-// GrowID register
 app.all('/player/growid/register/validate', (req, res) => {
     const _token = req.body._token;
     const growId = req.body.growId;
@@ -96,7 +105,6 @@ app.all('/player/growid/register/validate', (req, res) => {
     );
 });
 
-// Token check
 app.all('/player/growid/checkToken', (req, res) => {
     try {
         const { refreshToken, clientData } = req.body;
@@ -121,12 +129,10 @@ app.all('/player/growid/checkToken', (req, res) => {
     }
 });
 
-// Root
 app.get('/', function (req, res) {
     res.send('Hello World!');
 });
 
-// Dinleme
 app.listen(5000, function () {
     console.log('Listening on port 5000');
 });
