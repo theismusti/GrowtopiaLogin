@@ -50,6 +50,36 @@ app.all('/player/login/dashboard/response', function (req, res) {
     const randomMac = Array.from({length: 6}, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(':');
     const randomUUID = Math.random().toString(36).substring(2, 20);
     
+    // Create comprehensive ltoken with all parameters
+    const tokenData = {
+        tankIDName: "",
+        tankIDPass: "_register_",
+        requestedName: "",
+        f: "1",
+        protocol: "217",
+        game_version: "5.27",
+        fz: "22243512",
+        cbits: "1024",
+        player_age: "25",
+        GDPR: "2",
+        FCMToken: "",
+        category: "_-5100",
+        totalPlaytime: "0",
+        klv: "4b94632833869b0db08692a9cb5b2b67a4a5139621bd0a89150e10bebb48a4ba",
+        hash2: "782839700",
+        meta: "AMETSA",
+        fhash: "-716928004",
+        rid: randomId,
+        platformID: "0,1,1",
+        deviceVersion: "0",
+        country: "tr",
+        hash: "1250349998",
+        mac: randomMac,
+        wk: randomId
+    };
+    
+    const ltoken = Buffer.from(`_token=${JSON.stringify(tokenData)}`).toString("base64");
+    
     const resp = [
         `protocol|217`,
         `game_version|5.27`,
@@ -63,7 +93,7 @@ app.all('/player/login/dashboard/response', function (req, res) {
         `fhash|-716928004`,
         `country|tr`,
         `wk|${randomId}`,
-        `ltoken|${Buffer.from("_register_").toString("base64")}`,
+        `ltoken|${ltoken}`,
         `platformID|0,1,1`,
         `mac|${randomMac}`,
         `player_age|25`,
@@ -74,6 +104,7 @@ app.all('/player/login/dashboard/response', function (req, res) {
     ].join('\n');
 
     console.log(`[Dashboard] Client ${clientIP} requested dashboard response`);
+    console.log(`[Dashboard] Generated ltoken length: ${ltoken.length}`);
     res.send(resp);
 });
 
@@ -81,6 +112,39 @@ app.all('/player/growid/login/validate', (req, res) => {
     const _token = req.body._token;
     const growId = req.body.growId;
     const password = req.body.password;
+    const ltoken = req.body.ltoken;
+    const platformID = req.body.platformID;
+
+    console.log('Login attempt:', {
+        growId,
+        password: password ? '***' : 'missing',
+        ltoken: ltoken ? 'present' : 'missing',
+        platformID
+    });
+
+    // Decode ltoken to get all parameters
+    let clientData = {};
+    if (ltoken) {
+        try {
+            const decodedToken = Buffer.from(ltoken, 'base64').toString('utf-8');
+            console.log('Decoded ltoken:', decodedToken);
+            
+            // Parse the token data
+            const tokenData = JSON.parse(decodedToken.split('&growId=')[0].replace('_token=', ''));
+            clientData = tokenData;
+            console.log('Parsed client data:', clientData);
+        } catch (error) {
+            console.log('Error parsing ltoken:', error.message);
+        }
+    }
+
+    // Validate required fields
+    if (!growId || !password) {
+        return res.status(400).send({
+            status: "error",
+            message: "Missing growId or password"
+        });
+    }
 
     const token = Buffer.from(
         `_token=${_token}&growId=${growId}&password=${password}`,
