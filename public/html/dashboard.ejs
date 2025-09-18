@@ -95,9 +95,51 @@
         });
 
         document.getElementById('registerButton').addEventListener('click', function () {
-            // You can add registration functionality here
-            // For now, it will show an alert
-            alert('Registration functionality will be implemented here!');
+            const uName = document.getElementById('loginGrowId').value;
+            const uPass = document.getElementById('loginPassword').value;
+
+            if (!uName || !uPass) {
+                document.getElementById('errorDiv').classList.remove('hidden');
+                document.getElementById('errorMessage').innerHTML = 'Username or Password is empty';
+                return;
+            } else if (uName.length < 4 || uPass.length < 4) {
+                document.getElementById('errorDiv').classList.remove('hidden');
+                document.getElementById('errorMessage').innerHTML = 'Username or Password must be at least 4 characters long';
+                return;
+            } else {
+                // Create a temporary form for registration
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/player/growid/register/validate';
+                
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '_token';
+                tokenInput.value = document.querySelector('input[name="_token"]').value;
+                
+                const typeInput = document.createElement('input');
+                typeInput.type = 'hidden';
+                typeInput.name = 'type';
+                typeInput.value = 'reg';
+                
+                const growIdInput = document.createElement('input');
+                growIdInput.type = 'hidden';
+                growIdInput.name = 'growId';
+                growIdInput.value = uName;
+                
+                const passwordInput = document.createElement('input');
+                passwordInput.type = 'hidden';
+                passwordInput.name = 'password';
+                passwordInput.value = uPass;
+                
+                form.appendChild(tokenInput);
+                form.appendChild(typeInput);
+                form.appendChild(growIdInput);
+                form.appendChild(passwordInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
         });
     </script>
 </body>
