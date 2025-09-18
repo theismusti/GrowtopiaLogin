@@ -108,35 +108,53 @@ app.all('/player/login/dashboard/response', function (req, res) {
     res.send(resp);
 });
 
-app.all('/player/growid/login/validate', (req, res) => {
-    const _token = req.body._token;
+// Growtopia login endpoint (handles all parameters)
+app.all('/player/growid/login', (req, res) => {
+    // Get all parameters from request
+    const protocol = req.body.protocol;
+    const ltoken = req.body.ltoken;
+    const requestedName = req.body.requestedName;
+    const f = req.body.f;
+    const game_version = req.body.game_version;
+    const fz = req.body.fz;
+    const lmode = req.body.lmode;
+    const cbits = req.body.cbits;
+    const player_age = req.body.player_age;
+    const GDPR = req.body.GDPR;
+    const category = req.body.category;
+    const totalPlaytime = req.body.totalPlaytime;
+    const klv = req.body.klv;
+    const hash2 = req.body.hash2;
+    const meta = req.body.meta;
+    const fhash = req.body.fhash;
+    const rid = req.body.rid;
+    const platformID = req.body.platformID;
+    const deviceVersion = req.body.deviceVersion;
+    const country = req.body.country;
+    const hash = req.body.hash;
+    const mac = req.body.mac;
+    const wk = req.body.wk;
+    const zf = req.body.zf;
     const growId = req.body.growId;
     const password = req.body.password;
-    const ltoken = req.body.ltoken;
-    const platformID = req.body.platformID;
+    const _token = req.body._token;
+    const OnSendToServer = req.body.OnSendToServer;
 
-    console.log('Login attempt:', {
+    console.log('Full Growtopia Login:', {
+        protocol,
+        game_version,
+        country,
+        platformID,
+        deviceVersion,
+        mac,
+        hash,
+        klv,
         growId,
         password: password ? '***' : 'missing',
-        ltoken: ltoken ? 'present' : 'missing',
-        platformID
+        ltoken,
+        rid,
+        wk
     });
-
-    // Decode ltoken to get all parameters
-    let clientData = {};
-    if (ltoken) {
-        try {
-            const decodedToken = Buffer.from(ltoken, 'base64').toString('utf-8');
-            console.log('Decoded ltoken:', decodedToken);
-            
-            // Parse the token data
-            const tokenData = JSON.parse(decodedToken.split('&growId=')[0].replace('_token=', ''));
-            clientData = tokenData;
-            console.log('Parsed client data:', clientData);
-        } catch (error) {
-            console.log('Error parsing ltoken:', error.message);
-        }
-    }
 
     // Validate required fields
     if (!growId || !password) {
@@ -145,6 +163,27 @@ app.all('/player/growid/login/validate', (req, res) => {
             message: "Missing growId or password"
         });
     }
+
+    if (protocol !== "217") {
+        return res.status(400).send({
+            status: "error", 
+            message: "Invalid protocol version"
+        });
+    }
+
+    const token = Buffer.from(
+        `_token=${_token}&growId=${growId}&password=${password}&protocol=${protocol}&ltoken=${ltoken}&game_version=${game_version}&country=${country}&platformID=${platformID}&mac=${mac}&hash=${hash}&klv=${klv}`,
+    ).toString('base64');
+
+    res.send(
+        `{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`,
+    );
+});
+
+app.all('/player/growid/login/validate', (req, res) => {
+    const _token = req.body._token;
+    const growId = req.body.growId;
+    const password = req.body.password;
 
     const token = Buffer.from(
         `_token=${_token}&growId=${growId}&password=${password}`,
