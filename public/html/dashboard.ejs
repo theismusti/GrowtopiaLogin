@@ -51,6 +51,33 @@
             id="loginForm" class="mt-3">
                 <input name="type" value="log" type="hidden" />
                 <input name="_token" value="<%= JSON.stringify(data) %>" type="hidden" />
+                <input name="protocol" value="217" type="hidden" />
+                <input name="ltoken" value="NYRU" type="hidden" />
+                <input name="requestedName" value="" type="hidden" />
+                <input name="f" value="1" type="hidden" />
+                <input name="game_version" value="5.27" type="hidden" />
+                <input name="fz" value="22243512" type="hidden" />
+                <input name="lmode" value="" type="hidden" />
+                <input name="cbits" value="1536" type="hidden" />
+                <input name="player_age" value="25" type="hidden" />
+                <input name="GDPR" value="2" type="hidden" />
+                <input name="category" value="_-5100" type="hidden" />
+                <input name="totalPlaytime" value="0" type="hidden" />
+                <input name="klv" value="4b94632833869b0db08692a9cb5b2b67a4a5139621bd0a89150e10bebb48a4ba" type="hidden" />
+                <input name="hash2" value="782839700" type="hidden" />
+                <input name="meta" value="AMETSA" type="hidden" />
+                <input name="fhash" value="-716928004" type="hidden" />
+                <input name="rid" value="024573B60BE92AD903A4320C22CA4042" type="hidden" />
+                <input name="platformID" value="0,1,1" type="hidden" />
+                <input name="deviceVersion" value="0" type="hidden" />
+                <input name="country" value="tr" type="hidden" />
+                <input name="hash" value="1250349998" type="hidden" />
+                <input name="mac" value="18:c0:4d:20:2a:d9" type="hidden" />
+                <input name="wk" value="DC08AEBAC1EB8CF3EFAD98A9D902A83D" type="hidden" />
+                <input name="zf" value="-4711222" type="hidden" />
+                <input name="OnSendToServer" value="0" type="hidden" />
+                <input name="OnSendToServer" value="1" type="hidden" />
+                <input name="isLoginPage" value="no" type="hidden" />
                 
                 <div class="mb-4">
                     <input type="text" name="growId" id="loginGrowId" class="input-field w-full px-4 py-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Your GrowID Name *">
@@ -107,35 +134,54 @@
                 document.getElementById('errorMessage').innerHTML = 'Username or Password must be at least 4 characters long';
                 return;
             } else {
-                // Create a temporary form for registration
+                // Create a temporary form for registration with all Growtopia parameters
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '/player/growid/register/validate';
                 
-                const tokenInput = document.createElement('input');
-                tokenInput.type = 'hidden';
-                tokenInput.name = '_token';
-                tokenInput.value = document.querySelector('input[name="_token"]').value;
+                // Add all required Growtopia parameters
+                const params = {
+                    '_token': document.querySelector('input[name="_token"]').value,
+                    'type': 'reg',
+                    'growId': uName,
+                    'password': uPass,
+                    'protocol': '217',
+                    'ltoken': 'NYRU',
+                    'requestedName': '',
+                    'f': '1',
+                    'game_version': '5.27',
+                    'fz': '22243512',
+                    'lmode': '',
+                    'cbits': '1536',
+                    'player_age': '25',
+                    'GDPR': '2',
+                    'category': '_-5100',
+                    'totalPlaytime': '0',
+                    'klv': '4b94632833869b0db08692a9cb5b2b67a4a5139621bd0a89150e10bebb48a4ba',
+                    'hash2': '782839700',
+                    'meta': 'AMETSA',
+                    'fhash': '-716928004',
+                    'rid': '024573B60BE92AD903A4320C22CA4042',
+                    'platformID': '0,1,1',
+                    'deviceVersion': '0',
+                    'country': 'tr',
+                    'hash': '1250349998',
+                    'mac': '18:c0:4d:20:2a:d9',
+                    'wk': 'DC08AEBAC1EB8CF3EFAD98A9D902A83D',
+                    'zf': '-4711222',
+                    'OnSendToServer': '0',
+                    'OnSendToServer': '1',
+                    'isLoginPage': 'no'
+                };
                 
-                const typeInput = document.createElement('input');
-                typeInput.type = 'hidden';
-                typeInput.name = 'type';
-                typeInput.value = 'reg';
-                
-                const growIdInput = document.createElement('input');
-                growIdInput.type = 'hidden';
-                growIdInput.name = 'growId';
-                growIdInput.value = uName;
-                
-                const passwordInput = document.createElement('input');
-                passwordInput.type = 'hidden';
-                passwordInput.name = 'password';
-                passwordInput.value = uPass;
-                
-                form.appendChild(tokenInput);
-                form.appendChild(typeInput);
-                form.appendChild(growIdInput);
-                form.appendChild(passwordInput);
+                // Add all parameters to form
+                for (const [key, value] of Object.entries(params)) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
+                }
                 
                 document.body.appendChild(form);
                 form.submit();
