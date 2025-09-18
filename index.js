@@ -102,9 +102,52 @@ app.all('/player/growid/login/validate', (req, res) => {
         `_token=${_token}&growId=${growId}&password=${password}&protocol=${protocol}&ltoken=${ltoken}&game_version=${game_version}&country=${country}&platformID=${platformID}&mac=${mac}&hash=${hash}&klv=${klv}`,
     ).toString('base64');
 
-    res.send(
-        `{"status":"success","message":"Account Validated.","token":"${token}","url":"","accountType":"growtopia"}`,
-    );
+    // Growtopia response format
+    const response = {
+        status: "success",
+        message: "Account Validated.",
+        token: token,
+        url: "",
+        accountType: "growtopia",
+        playerData: {
+            growId: growId,
+            protocol: protocol,
+            game_version: game_version,
+            country: country,
+            platformID: platformID,
+            deviceVersion: deviceVersion,
+            mac: mac,
+            hash: hash,
+            klv: klv,
+            ltoken: ltoken,
+            player_age: player_age || 25,
+            totalPlaytime: totalPlaytime || 0,
+            GDPR: GDPR || 2,
+            category: category || "_-5100",
+            meta: meta || "AMETSA",
+            fhash: fhash || "-716928004",
+            rid: rid || "024573B60BE92AD903A4320C22CA4042",
+            wk: wk || "DC08AEBAC1EB8CF3EFAD98A9D902A83D",
+            zf: zf || "-4711222",
+            hash2: hash2 || "782839700",
+            fz: fz || "22243512",
+            cbits: cbits || "1536",
+            lmode: lmode || "",
+            requestedName: requestedName || "",
+            OnSendToServer: OnSendToServer || "0,1",
+            isLoginPage: isLoginPage || "no"
+        },
+        serverInfo: {
+            serverName: "GrowDiamond",
+            serverVersion: "1.0.0",
+            maxPlayers: 1000,
+            currentPlayers: 0,
+            serverIP: "127.0.0.1",
+            serverPort: 17091
+        }
+    };
+
+    res.send(JSON.stringify(response));
 });
 
 app.all('/player/growid/register/validate', (req, res) => {
@@ -169,9 +212,52 @@ app.all('/player/growid/register/validate', (req, res) => {
         `_token=${_token}&growId=${growId}&password=${password}&protocol=${protocol}&ltoken=${ltoken}&game_version=${game_version}&country=${country}&platformID=${platformID}&mac=${mac}&hash=${hash}&klv=${klv}`,
     ).toString('base64');
 
-    res.send(
-        `{"status":"success","message":"Account Created Successfully.","token":"${token}","url":"","accountType":"growtopia"}`,
-    );
+    // Growtopia response format
+    const response = {
+        status: "success",
+        message: "Account Created Successfully.",
+        token: token,
+        url: "",
+        accountType: "growtopia",
+        playerData: {
+            growId: growId,
+            protocol: protocol,
+            game_version: game_version,
+            country: country,
+            platformID: platformID,
+            deviceVersion: deviceVersion,
+            mac: mac,
+            hash: hash,
+            klv: klv,
+            ltoken: ltoken,
+            player_age: player_age || 25,
+            totalPlaytime: totalPlaytime || 0,
+            GDPR: GDPR || 2,
+            category: category || "_-5100",
+            meta: meta || "AMETSA",
+            fhash: fhash || "-716928004",
+            rid: rid || "024573B60BE92AD903A4320C22CA4042",
+            wk: wk || "DC08AEBAC1EB8CF3EFAD98A9D902A83D",
+            zf: zf || "-4711222",
+            hash2: hash2 || "782839700",
+            fz: fz || "22243512",
+            cbits: cbits || "1536",
+            lmode: lmode || "",
+            requestedName: requestedName || "",
+            OnSendToServer: OnSendToServer || "0,1",
+            isLoginPage: isLoginPage || "no"
+        },
+        serverInfo: {
+            serverName: "GrowDiamond",
+            serverVersion: "1.0.0",
+            maxPlayers: 1000,
+            currentPlayers: 0,
+            serverIP: "127.0.0.1",
+            serverPort: 17091
+        }
+    };
+
+    res.send(JSON.stringify(response));
 });
 
 app.all('/player/growid/checkToken', (req, res) => {
