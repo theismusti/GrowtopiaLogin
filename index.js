@@ -29,36 +29,38 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 
-// ✅ Growtopia client server_data.php endpoint
-app.all('/growtopia/server_data.php', (req, res) => {
-    // Sunucu IP ve port buradan dönüyor
-    const gameIP = "31.58.91.112";  // kendi oyun sunucunun IP'si
-    const gamePort = 17777;         // kendi kullandığın port (5000 değil!)
+// ✅ Growtopia server_data.php endpoint
+app.all('/growtopia/server_data.php', function (req, res) {
+    const gameIP = "31.58.91.112"; // Senin oyun sunucusu IP
+    const gamePort = 17777;        // Senin oyun sunucusu portu
 
-    const response = `
-server|${gameIP}
-port|${gamePort}
-type|1
-loginurl|https://${req.headers.host}/player/login/dashboard
-    `;
+    const response = [
+        `server|${gameIP}`,
+        `port|${gamePort}`,
+        `type|1`,
+        `loginurl|https://${req.headers.host}/player/login/dashboard`,
+        ""
+    ].join("\n");
+
     res.send(response);
 });
 
+// Dashboard
 app.all('/player/login/dashboard', function (req, res) {
     const tData = {};
     try {
-        const uData = JSON.stringify(req.body).split('"')[1].split('\\n'); 
-        const uName = uData[0].split('|'); 
+        const uData = JSON.stringify(req.body).split('"')[1].split('\\n');
+        const uName = uData[0].split('|');
         const uPass = uData[1].split('|');
-        for (let i = 0; i < uData.length - 1; i++) { 
-            const d = uData[i].split('|'); 
-            tData[d[0]] = d[1]; 
+        for (let i = 0; i < uData.length - 1; i++) {
+            const d = uData[i].split('|');
+            tData[d[0]] = d[1];
         }
-        if (uName[1] && uPass[1]) { 
-            res.redirect('/player/growid/login/validate'); 
+        if (uName[1] && uPass[1]) {
+            res.redirect('/player/growid/login/validate');
         }
-    } catch (why) { 
-        console.log(`Warning: ${why}`); 
+    } catch (why) {
+        console.log(`Warning: ${why}`);
     }
 
     res.render(__dirname + '/public/html/dashboard.ejs', { data: tData });
@@ -102,9 +104,7 @@ app.all('/player/growid/checkToken', (req, res) => {
 
         let decodeRefreshToken = Buffer.from(refreshToken, 'base64').toString('utf-8');
 
-        const token = Buffer.from(
-            decodeRefreshToken.replace(/(_token=)[^&]*/, `$1${Buffer.from(clientData).toString('base64')}`)
-        ).toString('base64');
+        const token = Buffer.from(decodeRefreshToken.replace(/(_token=)[^&]*/, `$1${Buffer.from(clientData).toString('base64')}`)).toString('base64');
 
         res.send({
             status: "success",
